@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     .update(JSON.stringify(data))
     .digest("hex");
 
-  if (calculatedSignature !== signature) {
+  if (calculatedSignature != signature) {
     return NextResponse.json({
       "X-clerk-signature": signature,
       secret: secret,
