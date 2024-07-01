@@ -24,6 +24,8 @@ export async function POST(req: Request) {
 
   if (calculatedSignature !== signature) {
     return NextResponse.json({
+      "X-clerk-signature": signature,
+      secret: secret,
       success: false,
       message: "Invalid signature",
     });
