@@ -1,58 +1,92 @@
-"use server";
+import { clerkClient } from "@clerk/nextjs/server";
+import { WebhookEvent } from "@clerk/nextjs/server";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { Webhook } from "svix";
 
-import crypto from "crypto";
-import { User } from "@/config/schemas";
-import { connectDB } from "@/config/mongo-connect";
+import { createUser } from "@/config/actions/user_action";
 
 export async function POST(req: Request) {
-  const data = await req.json();
-  const signature = req.headers.get("x-clerk-signature");
-  const secret = process.env.CLERK_WEBHOOK_SECRET; // Get from env variable
+  
+  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
-  if (!secret) {
-    return NextResponse.json({
-      success: false,
-      message: "Missing secret key",
+  if (!WEBHOOK_SECRET) {
+    throw new Error(
+      "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
+    );
+  }
+
+  // Get the headers
+  const headerPayload = headers();
+  const svix_id = headerPayload.get("svix-id");
+  const svix_timestamp = headerPayload.get("svix-timestamp");
+  const svix_signature = headerPayload.get("svix-signature");
+
+  // If there are no headers, error out
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    return new Response("Error occured -- no svix headers", {
+      status: 400,
     });
   }
 
-  const calculatedSignature = crypto
-    .createHmac("sha256", secret)
-    .update(JSON.stringify(data))
-    .digest("hex");
+  // Get the body
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
 
-  if (calculatedSignature != signature) {
-    return NextResponse.json({
-      "X-clerk-signature": signature,
-      secret: secret,
-      success: false,
-      message: "Invalid signature",
-    });
-  }
+  // Create a new Svix instance with your secret.
+  const wh = new Webhook(WEBHOOK_SECRET);
 
+  let evt: WebhookEvent;
+
+  // Verify the payload with the headers
   try {
-    await connectDB();
-    const user = new User({
-      email: data.email,
-      imageUrl: data.imageUrl,
-      clerkId: data.userId,
-      name: data.firstName + " " + data.lastName, // Combine names if needed
+    evt = wh.verify(body, {
+      "svix-id": svix_id,
+      "svix-timestamp": svix_timestamp,
+      "svix-signature": svix_signature,
+    }) as WebhookEvent;
+  } catch (err) {
+    console.error("Error verifying webhook:", err);
+    return new Response("Error occured", {
+      status: 400,
     });
+  }
 
-    await user.save();
+  // Do something with the payload
+  // For this guide, you simply log the payload to the console
+  const { id } = evt.data;
+  const eventType = evt.type;
+
+  //* Create a user in mongodb 
+  if (eventType === "user.created") {
+    const userData = evt.data;
+    const newUser ={
+      email: userData.email_addresses[0].email_address,
+      imageUrl: userData.image_url,
+      clerkId: userData.id,
+      name: userData?.first_name + " " + userData?.last_name,
+    }
+
+    console.log("User data:", newUser)
+    const response = await createUser(newUser);
+    
+    if(newUser){
+        await clerkClient.users.updateUserMetadata(userData.id, {
+          publicMetadata:{
+            user_id: response.data._id,
+          }
+        });
+    }
 
     return NextResponse.json({
       success: true,
       message: "User created",
-      data: user,
+      data: newUser
     });
-  } catch (error) {
-    console.error("Error saving user to MongoDB:", error);
-    return NextResponse.json({
-      success: false,
-      message: "Error saving user",
-      data: error,
-    });
+
   }
+  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
+  console.log("Webhook body:", body);
+
+  return new Response("", { status: 200 });
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
@@ -25,16 +26,22 @@ export default function RootLayout({
           socialButtonsVariant: "iconButton",
           logoImageUrl: "/icons/auth-logo.svg",
         },
-        variables:{
-          colorBackground:"#15171c",
-          colorPrimary:"",
-          colorText:"white",
-          colorInputBackground:"#1b1f29",
-          colorInputText:"white",
-        }
+        variables: {
+          colorBackground: "#15171c",
+          colorPrimary: "",
+          colorText: "white",
+          colorInputBackground: "#1b1f29",
+          colorInputText: "white",
+        },
       }}
     >
       <html lang="en">
+        <head>
+          <Script
+            src={`https://code.responsivevoice.org/responsivevoice.js?key=${process.env.NEXT_PUBLIC_RESPONSIVE_VOICE_API_KEY}`}
+            strategy="beforeInteractive"
+          />
+        </head>
         <body className={inter.className}>{children}</body>
       </html>
     </ClerkProvider>

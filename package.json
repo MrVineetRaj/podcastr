@@ -10,17 +10,27 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.1.6",
+    "@google/generative-ai": "^0.14.1",
+    "@hookform/resolvers": "^3.6.0",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
+    "cloudinary": "^2.2.0",
     "clsx": "^2.1.1",
+    "google-tts-api": "^2.0.2",
     "lucide-react": "^0.399.0",
     "mongodb": "^6.8.0",
     "mongoose": "^8.4.4",
     "next": "14.2.4",
+    "node-fetch": "^3.3.2",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.52.0",
+    "svix": "^1.24.0",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",

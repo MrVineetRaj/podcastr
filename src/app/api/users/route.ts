@@ -1,5 +1,5 @@
 "use server";
-import { User } from "@/config/schemas";
+import { User } from "@/config/mongoose/schemas";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -27,5 +27,3 @@ export async function POST(req: Request) {
     });
   }
 }
-
-
