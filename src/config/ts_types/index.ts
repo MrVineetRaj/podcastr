@@ -6,6 +6,7 @@ export interface GeneratePodcastProps {
   audio: string;
   voicePrompt: string;
   setVoicePrompt: Dispatch<SetStateAction<string>>;
+  setTranscription: Dispatch<SetStateAction<string>>;
 }
 
 export interface GenerateThumbnailProps {

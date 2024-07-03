@@ -1,5 +1,3 @@
-
-
 export const createOneUser = async (data: {
   email: string;
   imageUrl: string;
@@ -25,4 +23,13 @@ export const createOneUser = async (data: {
   }
 };
 
-
+export async function getAllPodcasts() {
+  try {
+    const res = await fetch("/api/podcast");
+    const data = await res.json();
+    const podcasts = data.data;
+    return podcasts;
+  } catch (error) {
+    console.error("Error fetching podcasts:", error);
+  }
+}

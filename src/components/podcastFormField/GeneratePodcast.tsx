@@ -11,7 +11,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { useUser } from "@clerk/nextjs";
 
 const useGeneratePodcast = (props: GeneratePodcastProps) => {
-  const { audio, setAudio, voicePrompt, setVoicePrompt, podcastTitle } = props;
+  const {
+    audio,
+    setAudio,
+    voicePrompt,
+    setVoicePrompt,
+    podcastTitle,
+    setTranscription,
+  } = props;
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const { user, isSignedIn } = useUser();
@@ -39,7 +46,13 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
 
     try {
       let clerkId = user.id;
-      await generateAudio({ podcastTitle, voicePrompt, setAudio, clerkId });
+      await generateAudio({
+        podcastTitle,
+        voicePrompt,
+        setAudio,
+        clerkId,
+        setTranscription,
+      });
       setIsGenerating(false);
       toast({
         title: "Podcast generated successfully",

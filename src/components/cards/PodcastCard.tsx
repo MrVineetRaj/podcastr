@@ -1,22 +1,30 @@
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const PodcastCard = ({
   podcast,
 }: {
   podcast: {
-    id: number;
     title: string;
     description: string;
-    imgURL: string;
+    imageUrl: string;
+    _id: string;
   };
 }) => {
-  const { title, description, imgURL } = podcast;
+  const { title, description, imageUrl, _id } = podcast;
+  const router = useRouter();
+
+  const handlePodCastRedirect = () => {
+    router.push(`/podcast?r=${_id}`, {
+      scroll: true,
+    });
+  };
   return (
-    <div className=" cursor-pointer">
+    <div className=" cursor-pointer" onClick={handlePodCastRedirect}>
       <figure className="">
         <Image
-          src={imgURL}
+          src={imageUrl}
           alt={title}
           width={174}
           height={174}

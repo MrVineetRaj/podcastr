@@ -58,6 +58,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       message: "Audio file generated successfully",
+      transcription: text,
       url: result.secure_url,
     });
   } catch (error) {

@@ -1,9 +1,41 @@
-import React from 'react'
+"use client";
+
+import { SignedIn, UserButton } from "@clerk/clerk-react";
+import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useEffect } from "react";
+import Carousel from "../Carousel";
+import Header from "../Header";
 
 const RightSideBar = () => {
-  return (
-    <section className="right_sidebar text-white-1" ></section>
-  )
-}
+  const { user, isSignedIn } = useUser();
 
-export default RightSideBar
+  return (
+    <section className="right_sidebar text-white-1">
+      <SignedIn>
+        <Link
+          href={"/profile" + user?.id}
+          className="flex gap-3 pb-12 items-center font-bold"
+        >
+          <UserButton />
+          <div className="flex w-full items-center justify-between">
+            <h1>{user?.firstName}</h1>
+            <Image
+              src="/icons/right-arrow.svg"
+              alt="arrow-right"
+              width={20}
+              height={20}
+            />
+          </div>
+        </Link>
+      </SignedIn>
+      <section className="">
+        <Header headerTitle="Fans Like you"/>
+        <Carousel />
+      </section>
+    </section>
+  );
+};
+
+export default RightSideBar;

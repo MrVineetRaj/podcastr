@@ -36,7 +36,8 @@ export async function POST(req: Request) {
 
     // finalResult = finalResult.replace(/<|>/g, "");
     finalResult = finalResult.replaceAll("*", "");
-    console.log(finalResult);
+    finalResult = finalResult.replaceAll("#", "");
+    
 
     return NextResponse.json({
       status: 200,

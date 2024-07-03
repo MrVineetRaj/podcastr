@@ -24,6 +24,10 @@ const PodcastSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  transcription: {
+    type: String,
+    required: true,
+  },
 });
 
 //h here we are creating a schema for the user

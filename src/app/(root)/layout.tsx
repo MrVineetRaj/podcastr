@@ -1,4 +1,5 @@
 import LeftSideBar from "@/components/sidebar/LeftSideBar";
+import RightSideBar from "@/components/sidebar/RightSideBar";
 import { Toaster } from "@/components/ui/toaster";
 import Image from "next/image";
 
@@ -23,7 +24,7 @@ export default function RootLayout({
             </div>
           </div>
         </section>
-        <p>Right sidebar</p>
+        <RightSideBar/>
       </main>
     </div>
   );

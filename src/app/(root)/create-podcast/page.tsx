@@ -53,6 +53,7 @@ const CreatePodcast = () => {
 
   const [podcastTitle, setPodcastTitle] = useState("");
   const [podcastDescription, setPodcastDescription] = useState("");
+  const [transcription, setTranscription] = useState("");
 
   const handleCreateNewPodcast = async () => {
     setIsSubmitting(true);
@@ -86,6 +87,7 @@ const CreatePodcast = () => {
         description: podcastDescription,
         audioUrl: audioUrl,
         imageUrl: image,
+        transcription: transcription,
       }),
     });
 
@@ -101,12 +103,11 @@ const CreatePodcast = () => {
     const data = await res.json();
     console.log(data);
     setIsSubmitting(false);
-    // toast({
-    //   title: "Podcast created successfully",
-    //   variant: "success",
-    // });
+    toast({
+      title: "Podcast created successfully",
+      variant: "success",
+    });
 
-    // router.push(`/podcast/${response.data.id}`);
   };
 
   return (
@@ -152,6 +153,7 @@ const CreatePodcast = () => {
           audio={audioUrl}
           voicePrompt={voicePrompt}
           setVoicePrompt={setVoicePrompt}
+          setTranscription={setTranscription}
         />
 
         <GenerateThumbnail

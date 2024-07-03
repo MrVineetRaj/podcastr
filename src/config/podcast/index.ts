@@ -5,11 +5,13 @@ export const generateAudio = async ({
   setAudio,
   clerkId,
   podcastTitle,
+  setTranscription,
 }: {
   voicePrompt: string;
   setAudio: Dispatch<SetStateAction<string>>;
   clerkId: string;
   podcastTitle: string;
+  setTranscription: Dispatch<SetStateAction<string>>;
 }) => {
   const response = await fetch("/api/generate-podcast", {
     method: "POST",
@@ -20,6 +22,8 @@ export const generateAudio = async ({
   });
 
   const result = await response.json();
+  console.log("transcription", result.data);
+  setTranscription(result.data);
   if (typeof responsiveVoice !== "undefined") {
     const res = await fetch("api/cloudinary/store/podcast", {
       method: "POST",
