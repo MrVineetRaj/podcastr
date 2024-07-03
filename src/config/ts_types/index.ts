@@ -13,3 +13,11 @@ export interface GenerateThumbnailProps {
   setImage: Dispatch<SetStateAction<string>>;
   image: string;
 }
+
+export interface PodcastProps {
+  userId: string;
+  title: string;
+  description: string;
+  audioUrl: string;
+  imageUrl: string;
+}

@@ -28,8 +28,8 @@ export async function POST(req: Request) {
 
   try {
     const urls = tts.getAllAudioUrls(text, {
-      lang: "hi", // Hindi language
-      slow: false, // Normal speed
+      lang: "hi",
+      slow: false,
       host: "https://translate.google.com",
     });
 
@@ -47,7 +47,9 @@ export async function POST(req: Request) {
 
     const result = await cloudinary.uploader.upload(filePath, {
       resource_type: "video", // For audio files, use 'video'
-      public_id: `podcastr/audio/${clerkId}/${podcastTitle}`, // Dynamic folder path
+      folder: `podcastr/${clerkId}/${podcastTitle}/audio`,
+      public_id: "podcastAudio.mp3",
+      // format: "png", // Ensure the format is png
       overwrite: true,
       type: "authenticated", // Set to authenticated for private access
     });

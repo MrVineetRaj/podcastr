@@ -4,10 +4,12 @@ export const generateAudio = async ({
   voicePrompt,
   voiceType,
   setAudio,
+  clerkId
 }: {
   voicePrompt: string;
   voiceType: string;
   setAudio: Dispatch<SetStateAction<string>>;
+  clerkId: string;
 }) => {
   const response = await fetch("/api/generate-podcast", {
     method: "POST",
@@ -19,11 +21,11 @@ export const generateAudio = async ({
 
   const result = await response.json();
   if (typeof responsiveVoice !== "undefined") {
-    const res = await fetch("api/store-podcast", {
+    const res = await fetch("api/cloudinary/store/podcast", {
       method: "POST",
       body: JSON.stringify({
         text: result.data,
-        clerkId: "123",
+        clerkId: clerkId,
         podcastTitle: "test",
       }),
       headers: {
@@ -35,7 +37,6 @@ export const generateAudio = async ({
 
     console.log("resData", resData.message);
     setAudio(resData.url);
-
     // responsiveVoice.speak(result.data, voiceType); //* it's speaking data that i want to hear from the api
   } else {
     console.error("responsiveVoice is not defined");

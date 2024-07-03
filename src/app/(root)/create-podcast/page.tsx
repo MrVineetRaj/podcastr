@@ -47,18 +47,10 @@ const formSchema = z.object({
 
 const CreatePodcast = () => {
   const router = useRouter();
-  const [imagePrompt, setImagePrompt] = useState("");
 
-  // const [imageStorageId, setImageStorageId] = useState<Id<"_storage"> | null>(
-  //   null
-  // );
-
-  const [imageUrl, setImageUrl] = useState("");
+  const [image, setImage] = useState("");
 
   const [audioUrl, setAudioUrl] = useState("");
-  // const [audioStorageId, setAudioStorageId] = useState<Id<"_storage"> | null>(
-  //   null
-  // );
 
   const [audioDuration, setAudioDuration] = useState(0);
 
@@ -83,7 +75,7 @@ const CreatePodcast = () => {
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      if (!audioUrl || !imageUrl || !voiceType) {
+      if (!audioUrl || !image || !voiceType) {
         toast({
           title: "Please generate audio and image",
         });
@@ -91,19 +83,6 @@ const CreatePodcast = () => {
         throw new Error("Please generate audio and image");
       }
 
-      // const podcast = await createPodcast({
-      //   podcastTitle: data.podcastTitle,
-      //   podcastDescription: data.podcastDescription,
-      //   audioUrl,
-      //   imageUrl,
-      //   voiceType,
-      //   imagePrompt,
-      //   voicePrompt,
-      //   views: 0,
-      //   audioDuration,
-      //   audioStorageId: audioStorageId!,
-      //   imageStorageId: imageStorageId!,
-      // });
       toast({ title: "Podcast created" });
       setIsSubmitting(false);
       router.push("/");
@@ -217,7 +196,10 @@ const CreatePodcast = () => {
               setAudioDuration={setAudioDuration}
             />
 
-            <GenerateThumbnail setImage={setImageUrl} image={imageUrl} />
+            <GenerateThumbnail
+              setImage={setImage}
+              image={image}
+            />
 
             <div className="mt-10 w-full">
               <Button

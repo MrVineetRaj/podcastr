@@ -1,62 +1,28 @@
 import mongoose from "mongoose";
+import { PodcastProps } from "../ts_types";
 //h here we are creating a schema for the podcast
+
 const PodcastSchema = new mongoose.Schema({
-  user: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  podcastTitle: {
+  title: {
     type: String,
     required: true,
   },
-  podcastDescription: {
+  description: {
     type: String,
     required: true,
   },
   audioUrl: {
     type: String,
-  },
-  audioStorageId: {
-    type: String,
+    required: true,
   },
   imageUrl: {
     type: String,
-  },
-  imageStorageId: {
-    type: String,
-  },
-  author: {
-    type: String,
     required: true,
-  },
-  authorId: {
-    type: String,
-    required: true,
-  },
-  authorImageUrl: {
-    type: String,
-    required: true,
-  },
-  voicePrompt: {
-    type: String,
-    required: true,
-  },
-  imagePrompt: {
-    type: String,
-    required: true,
-  },
-  voiceType: {
-    type: String,
-    required: true,
-  },
-  audioDuration: {
-    type: Number,
-    required: true,
-  },
-  views: {
-    type: Number,
-    default: 0,
   },
 });
 
@@ -80,13 +46,13 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-let Podcast;
+let Podcast:any;
 try {
   Podcast = mongoose.model("Podcast");
 } catch (error) {
   Podcast = mongoose.model("Podcast", PodcastSchema);
 }
-let User:any;
+let User: any;
 try {
   User = mongoose.model("User");
 } catch (error) {

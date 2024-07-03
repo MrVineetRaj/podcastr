@@ -7,6 +7,9 @@ import { Textarea } from "../ui/textarea";
 import { Loader } from "lucide-react";
 import { Button } from "../ui/button";
 import { generateAudio } from "@/config/podcast";
+import { useToast } from "@/components/ui/use-toast"
+import { useUser } from "@clerk/nextjs";
+
 
 const useGeneratePodcast = (props: GeneratePodcastProps) => {
   const {
@@ -18,20 +21,38 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
     setAudioDuration,
   } = props;
   const [isGenerating, setIsGenerating] = useState(false);
-
+  const { toast } = useToast();
+  const { user, isSignedIn } = useUser();
+  
   const generatePodcast = async () => {
     setIsGenerating(true);
     setAudio("");
+    if (!isSignedIn || !user) {
+      toast({
+        title: "User is not signed in",
+        variant: "success",
+      });
+      setIsGenerating(false);
+      return;
+    }
 
     if (!voicePrompt) {
-      // todo : generate toast
+      toast({
+        title: "Please enter a prompt to generate a podcast",
+        variant: "warning",
+      });
       setIsGenerating(false);
       return;
     }
 
     try {
-      await generateAudio({ voicePrompt, voiceType, setAudio });
+      let clerkId = user.id;
+      await generateAudio({ voicePrompt, voiceType, setAudio , clerkId });
       setIsGenerating(false);
+      toast({
+        title:"Podcast generated successfully",
+        variant: "success",
+      });
     } catch (e) {
       //   console.log("error in generating podcast", e);
     }
