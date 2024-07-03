@@ -2,14 +2,14 @@ import { Dispatch, SetStateAction } from "react";
 
 export const generateAudio = async ({
   voicePrompt,
-  voiceType,
   setAudio,
-  clerkId
+  clerkId,
+  podcastTitle,
 }: {
   voicePrompt: string;
-  voiceType: string;
   setAudio: Dispatch<SetStateAction<string>>;
   clerkId: string;
+  podcastTitle: string;
 }) => {
   const response = await fetch("/api/generate-podcast", {
     method: "POST",
@@ -26,7 +26,7 @@ export const generateAudio = async ({
       body: JSON.stringify({
         text: result.data,
         clerkId: clerkId,
-        podcastTitle: "test",
+        podcastTitle: podcastTitle,
       }),
       headers: {
         "Content-Type": "application/json",

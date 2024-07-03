@@ -8,7 +8,7 @@ export const createNewPodcast = async (podcast: any) => {
   try {
     await connectDB();
     const newPodcast = new Podcast({
-      userId: podcast.userId,
+      author: podcast.author,
       title: podcast.title,
       description: podcast.description,
       audioUrl: podcast.audioUrl,

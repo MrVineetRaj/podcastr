@@ -30,195 +30,153 @@ import GeneratePodcast from "@/components/podcastFormField/GeneratePodcast";
 
 import GenerateThumbnail from "@/components/podcastFormField/GenerateThumbnail";
 
-import { Loader } from "lucide-react";
+import { Loader, User } from "lucide-react";
 // import { Id } from "@/convex/_generated/dataModel";
 import { useToast } from "@/components/ui/use-toast";
 // import { useMutation } from "convex/react";
 // import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { voiceDetails } from "@/constants";
+import { useUser } from "@clerk/nextjs";
 
 const voiceCategories = ["alloy", "shimmer", "nova", "echo", "fable", "onyx"];
 
-const formSchema = z.object({
-  podcastTitle: z.string().min(2),
-  podcastDescription: z.string().min(2),
-});
-
 const CreatePodcast = () => {
+  const { user, isSignedIn } = useUser();
   const router = useRouter();
 
   const [image, setImage] = useState("");
-
   const [audioUrl, setAudioUrl] = useState("");
-
-  const [audioDuration, setAudioDuration] = useState(0);
-
-  const [voiceType, setVoiceType] = useState<string | null>(null);
   const [voicePrompt, setVoicePrompt] = useState("");
-
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // const createPodcast = useMutation(api.podcasts.createPodcast);
-
   const { toast } = useToast();
 
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      podcastTitle: "",
-      podcastDescription: "",
-    },
-  });
+  const [podcastTitle, setPodcastTitle] = useState("");
+  const [podcastDescription, setPodcastDescription] = useState("");
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
-    try {
-      setIsSubmitting(true);
-      if (!audioUrl || !image || !voiceType) {
-        toast({
-          title: "Please generate audio and image",
-        });
-        setIsSubmitting(false);
-        throw new Error("Please generate audio and image");
-      }
-
-      toast({ title: "Podcast created" });
-      setIsSubmitting(false);
-      router.push("/");
-    } catch (error) {
-      console.log(error);
+  const handleCreateNewPodcast = async () => {
+    setIsSubmitting(true);
+    if (!isSignedIn) {
       toast({
-        title: "Error",
-        variant: "destructive",
+        title: "Please sign in to proceed",
+        variant: "warning",
       });
       setIsSubmitting(false);
+      return;
     }
-  }
+
+    const clerkId = user.id;
+    if (!podcastTitle || !podcastDescription || !audioUrl || !image) {
+      toast({
+        title: "Please fill all the fields to proceed",
+        variant: "warning",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const res = await fetch("/api/podcast", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        author: clerkId,
+        title: podcastTitle,
+        description: podcastDescription,
+        audioUrl: audioUrl,
+        imageUrl: image,
+      }),
+    });
+
+    if (!res.ok) {
+      toast({
+        title: "Error creating podcast",
+        variant: "error",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const data = await res.json();
+    console.log(data);
+    setIsSubmitting(false);
+    // toast({
+    //   title: "Podcast created successfully",
+    //   variant: "success",
+    // });
+
+    // router.push(`/podcast/${response.data.id}`);
+  };
 
   return (
     <section className="mt-10 flex flex-col">
       <h1 className="text-20 font-bold text-white-1">Create Podcast</h1>
 
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="mt-12 flex w-full flex-col"
-        >
-          <div className="flex flex-col gap-[30px] border-b border-black-5 pb-10">
-            <FormField
-              control={form.control}
-              name="podcastTitle"
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-2.5">
-                  <FormLabel className="text-16 font-bold text-white-1">
-                    Title
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="input-class focus-visible:ring-offset-orange-1"
-                      placeholder="JSM Pro Podcast"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-white-1" />
-                </FormItem>
-              )}
-            />
+      <div className="flex flex-col gap-[30px] border-b border-black-5 pb-10">
+        <div className="relative mt-6">
+          <Input
+            className="input-class focus-visible:ring-offset-orange-1 peer"
+            name="podcastTitle"
+            required
+            onChange={(e) => setPodcastTitle(e.target.value)}
+          />
+          <Label
+            className="absolute top-3 left-4 text-16 font-bold text-white-1 peer-focus:text-orange-1 peer-focus:text-sm peer-focus:-top-5 peer-focus:left-2 transition-all peer-valid:text-orange-1 peer-valid:text-sm peer-valid:-top-5 peer-valid:left-2"
+            htmlFor="podcastTitle"
+          >
+            Podcast Title
+          </Label>
+        </div>
 
-            <div className="flex flex-col gap-2.5">
-              <Label className="text-16 font-bold text-white-1">
-                Select Voice
-              </Label>
-              <Select
-                onValueChange={(value) => {
-                  setVoiceType(value);
-                  let introText = "hello, their how can i help you today";
-                  if (typeof responsiveVoice !== "undefined") {
-                    responsiveVoice.speak(introText, value);
-                  } else {
-                    console.error("responsiveVoice is not defined");
-                  }
-                }}
-              >
-                <SelectTrigger
-                  className={cn(
-                    "text-16 w-full border-none bg-black-1 text-gray-1 focus-visible:ring-offset-orange-1"
-                  )}
-                >
-                  <SelectValue
-                    placeholder="Select AI Voice"
-                    className="placeholder:text-gray-1 "
-                  />
-                </SelectTrigger>
-                <SelectContent className="text-16 border-none bg-black-1 font-bold text-white-1 focus:ring-orange-1">
-                  {voiceDetails?.map((item, index) => (
-                    <SelectItem
-                      key={index}
-                      value={item.value}
-                      className="capitalize focus:bg-orange-1"
-                    >
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="relative mt-6">
+          <Textarea
+            className="input-class focus-visible:ring-offset-orange-1 peer"
+            name="podcastDescription"
+            required
+            onChange={(e) => setPodcastDescription(e.target.value)}
+          />
+          <Label
+            className="absolute top-3 left-4 text-16 font-bold text-white-1 peer-focus:text-orange-1 peer-focus:text-sm peer-focus:-top-6 peer-focus:left-2 transition-all peer-valid:text-orange-1 peer-valid:text-sm peer-valid:-top-5 peer-valid:left-2"
+            htmlFor="podcastDescription"
+          >
+            Podcast Description
+          </Label>
+        </div>
+      </div>
+      <div className="flex flex-col pt-10">
+        <GeneratePodcast
+          // setAudioStorageId={setAudioStorageId}
+          podcastTitle={podcastTitle}
+          setAudio={setAudioUrl}
+          audio={audioUrl}
+          voicePrompt={voicePrompt}
+          setVoicePrompt={setVoicePrompt}
+        />
 
-            <FormField
-              control={form.control}
-              name="podcastDescription"
-              render={({ field }) => (
-                <FormItem className="flex flex-col gap-2.5">
-                  <FormLabel className="text-16 font-bold text-white-1">
-                    Description
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="input-class focus-visible:ring-offset-orange-1"
-                      placeholder="Write a short podcast description"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-white-1" />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex flex-col pt-10">
-            <GeneratePodcast
-              // setAudioStorageId={setAudioStorageId}
-              setAudio={setAudioUrl}
-              voiceType={voiceType!}
-              audio={audioUrl}
-              voicePrompt={voicePrompt}
-              setVoicePrompt={setVoicePrompt}
-              setAudioDuration={setAudioDuration}
-            />
+        <GenerateThumbnail
+          setImage={setImage}
+          image={image}
+          podcastTitle={podcastTitle}
+        />
 
-            <GenerateThumbnail
-              setImage={setImage}
-              image={image}
-            />
-
-            <div className="mt-10 w-full">
-              <Button
-                type="submit"
-                className="text-16 w-full bg-orange-1 py-4 font-extrabold text-white-1 transition-all duration-500 hover:bg-black-1"
-              >
-                {isSubmitting ? (
-                  <>
-                    Submitting
-                    <Loader size={20} className="animate-spin ml-2" />
-                  </>
-                ) : (
-                  "Submit & Publish Podcast"
-                )}
-              </Button>
-            </div>
-          </div>
-        </form>
-      </Form>
+        <div className="mt-10 w-full">
+          <Button
+            type="submit"
+            className="text-16 w-full bg-orange-1 py-4 font-extrabold text-white-1 transition-all duration-500 hover:bg-black-1"
+            onClick={handleCreateNewPodcast}
+          >
+            {isSubmitting ? (
+              <>
+                Submitting
+                <Loader size={20} className="animate-spin ml-2" />
+              </>
+            ) : (
+              "Submit & Publish Podcast"
+            )}
+          </Button>
+        </div>
+      </div>
     </section>
   );
 };

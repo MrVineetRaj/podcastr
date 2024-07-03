@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { useUser } from "@clerk/nextjs";
 import { Loader } from "lucide-react";
 
-const GenerateThumbnail = ({ setImage, image }: GenerateThumbnailProps) => {
+const GenerateThumbnail = ({
+  setImage,
+  image,
+  podcastTitle,
+}: GenerateThumbnailProps) => {
   const { user, isSignedIn } = useUser();
   const [isUploading, setIsUploading] = useState(false);
   const handleImageStore = async (file: any) => {
@@ -14,9 +18,10 @@ const GenerateThumbnail = ({ setImage, image }: GenerateThumbnailProps) => {
       console.error("User is not signed in");
       return;
     }
+
     const formData = new FormData();
     formData.append("file", file[0]);
-    formData.append("title", "test");
+    formData.append("title", podcastTitle);
     formData.append("clerkId", user.id);
 
     console.log(formData.get("file"));

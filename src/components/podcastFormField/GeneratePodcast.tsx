@@ -7,23 +7,15 @@ import { Textarea } from "../ui/textarea";
 import { Loader } from "lucide-react";
 import { Button } from "../ui/button";
 import { generateAudio } from "@/config/podcast";
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
 import { useUser } from "@clerk/nextjs";
 
-
 const useGeneratePodcast = (props: GeneratePodcastProps) => {
-  const {
-    audio,
-    voiceType,
-    setAudio,
-    voicePrompt,
-    setVoicePrompt,
-    setAudioDuration,
-  } = props;
+  const { audio, setAudio, voicePrompt, setVoicePrompt, podcastTitle } = props;
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const { user, isSignedIn } = useUser();
-  
+
   const generatePodcast = async () => {
     setIsGenerating(true);
     setAudio("");
@@ -47,14 +39,14 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
 
     try {
       let clerkId = user.id;
-      await generateAudio({ voicePrompt, voiceType, setAudio , clerkId });
+      await generateAudio({ podcastTitle, voicePrompt, setAudio, clerkId });
       setIsGenerating(false);
       toast({
-        title:"Podcast generated successfully",
+        title: "Podcast generated successfully",
         variant: "success",
       });
     } catch (e) {
-      //   console.log("error in generating podcast", e);
+      console.log("error in generating podcast", e);
     }
   };
 
@@ -65,8 +57,7 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
 };
 
 const GeneratePodcast = (props: GeneratePodcastProps) => {
-  const { audio, setAudio, voicePrompt, setVoicePrompt, setAudioDuration } =
-    props;
+  const { audio, setAudio, voicePrompt, setVoicePrompt } = props;
   const { isGenerating, generatePodcast } = useGeneratePodcast(props);
   return (
     <div>
@@ -100,13 +91,7 @@ const GeneratePodcast = (props: GeneratePodcastProps) => {
 
       {audio && (
         <div className="mt-5">
-          <audio
-            controls
-            src={audio}
-            autoPlay
-            className="mt-5 w-full"
-            onLoadedMetadata={(e) => setAudioDuration(e.currentTarget.duration)}
-          />
+          <audio controls src={audio} autoPlay className="mt-5 w-full" />
         </div>
       )}
     </div>

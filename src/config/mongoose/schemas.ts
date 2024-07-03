@@ -3,8 +3,8 @@ import { PodcastProps } from "../ts_types";
 //h here we are creating a schema for the podcast
 
 const PodcastSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
+  author: {
+    type: String,
     ref: "User",
     required: true,
   },
@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-let Podcast:any;
+let Podcast: any;
 try {
   Podcast = mongoose.model("Podcast");
 } catch (error) {
