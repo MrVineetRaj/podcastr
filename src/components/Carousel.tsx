@@ -15,14 +15,16 @@ const Carousel = () => {
     const response = await fetch("/api/podcast?r=" + activePodcastId);
     const data = await response.json();
     setActivePodcast(data?.data?.episodes);
-
   };
 
   React.useEffect(() => {
     fetchPodcast();
   }, [activePodcastId]);
   return (
-    <div>
+    <div
+      className=" h-full overflow-y-scroll mt-8"
+      style={{ scrollbarWidth: "thin" }}
+    >
       {activePodcast?.map(
         (
           episode: {

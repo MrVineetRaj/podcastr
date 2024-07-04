@@ -30,7 +30,7 @@ const LeftSideBar = () => {
               key={index}
               href={item.route}
               className={cn(
-                "flex items-center gap-3 py-4 max-lg:px-4 justify-center lg:justify-start  ",
+                "sticky left-0 top-0 flex h-full items-center gap-3 py-4 max-lg:px-4 justify-center lg:justify-start  ",
                 { "bg-nav-focus border-r-4 border-orange-1": isActive }
               )}
             >

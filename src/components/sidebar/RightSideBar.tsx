@@ -12,7 +12,7 @@ const RightSideBar = () => {
   const { user, isSignedIn } = useUser();
 
   return (
-    <section className="right_sidebar text-white-1">
+    <section className=" sticky right-0 top-0 h-[100vh] right_sidebar text-white-1">
       <SignedIn>
         <Link
           href={"/profile" + user?.id}
@@ -30,8 +30,8 @@ const RightSideBar = () => {
           </div>
         </Link>
       </SignedIn>
-      <section className="">
-        <Header headerTitle="Fans Like you"/>
+      <section className="mt-4 h-[70vh]">
+        <Header headerTitle="Fans Like you" />
         <Carousel />
       </section>
     </section>

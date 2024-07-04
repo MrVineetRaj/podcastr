@@ -114,6 +114,10 @@ const CreatePodcast = () => {
   return (
     <section className="mt-10 flex flex-col">
       <h1 className="text-20 font-bold text-white-1">Create Podcast</h1>
+      <p className="text-orange-1 border p-2 mt-4 border-orange-1 text-[12px] font-semibold rounded-md">
+        This section is using API from that is deployed on some other platform
+        so may take time to create new podcast **
+      </p>
 
       <div className="flex flex-col gap-[30px] border-b border-black-5 pb-10">
         <div className="relative mt-6">

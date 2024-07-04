@@ -16,13 +16,16 @@ export const generateAudio = async ({
   setTranscription: Dispatch<SetStateAction<string>>;
   setIsGenerating: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const response = await fetch("/api/generate-podcast", {
-    method: "POST",
-    body: JSON.stringify({ prompt: voicePrompt }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const response = await fetch(
+    "https://podcastr-utility-backend.onrender.com/generate-podcast/ai",
+    {
+      method: "POST",
+      body: JSON.stringify({ prompt: voicePrompt }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok) {
     toast({
@@ -42,28 +45,37 @@ export const generateAudio = async ({
   response
     .json()
     .then((res) => {
-      res.data.map(async (episode: any, index: number) => {
+      res?.text.map(async (episode: any, index: number) => {
         let text = episode.description;
-        const response = await fetch("/api/cloudinary/store/podcast", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ podcastTitle, text, index, clerkId }),
-        });
+        const response = await fetch(
+          "https://podcastr-utility-backend.onrender.com/cloudinary/store/podcast",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              text: text,
+              fileName: `episode-${index}`,
+              voiceId: "Aditi",
+              outputFormat: "mp3",
+              folder: `podcastr/${clerkId}/${podcastTitle}/episodes`,
+            }),
+          }
+        );
 
         const data = await response.json();
 
         episodes.push({
           description: episode.description,
           title: episode.title,
-          url: data.url,
+          url: data.secure_url,
           episodeNo: index,
         });
       });
-      
     })
     .catch((e) => {
+      console.log("error in generating podcast", e);
       toast({
         title: "retry with some other prompt",
         variant: "warning",
