@@ -1,10 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import fetch from "node-fetch";
-import * as tts from "google-tts-api";
-import { NextResponse } from "next/server";
+import AWS from "aws-sdk";
 import { v2 as cloudinary } from "cloudinary";
-import stream from "stream";
-import { promisify } from "util";
+import { NextResponse } from "next/server";
+import streamifier from "streamifier";
+
+// Configure AWS SDK and Cloudinary
+const polly = new AWS.Polly({
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -12,92 +16,84 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const streamUpload = (buffer: Buffer, folderPath: string, publicId: string): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        resource_type: "video", // For audio files, use 'video'
-        folder: folderPath,
-        public_id: publicId,
-        overwrite: true,
-        type: "authenticated", // Set to authenticated for private access
-      },
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
+// Function to synthesize speech
+const synthesizeSpeech = async (text: string) => {
+  const params = {
+    OutputFormat: "mp3",
+    Text: text,
+    VoiceId: "Aditi", // Choose your desired voice
+  };
 
-    const readable = new stream.PassThrough();
-    readable.end(buffer);
-    readable.pipe(uploadStream);
-  });
+  try {
+    const data = await polly.synthesizeSpeech(params).promise();
+    return data.AudioStream;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+// Function to upload audio to Cloudinary
+const uploadToCloudinary = async (
+  audioStream: any,
+  podcastTitle: string,
+  index: number,
+  clerkId: string
+) => {
+  try {
+    const uploadResult: any = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: `podcastr/${clerkId}/${podcastTitle}/episodes`,
+          resource_type: "video",
+          public_id: `episode-${index}`, // Unique public ID
+          overwrite: true,
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      streamifier.createReadStream(audioStream).pipe(uploadStream);
+    });
+
+    return uploadResult.secure_url;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 };
 
 export async function POST(req: Request) {
   const data = await req.json();
-  const { text, clerkId, podcastTitle } = data;
+  const { podcastTitle, index, clerkId, text } = data;
 
-  try {
-    const textArray = JSON.parse(text);
-
-    let episodes: {
-      description: string;
-      title: string;
-      url: string;
-      episodeNo: number;
-    }[] = [];
-
-    let index = 0;
-    for (const item of textArray) {
-      const { item: episode, description, title } = item;
-
-      let episodeTitle = title.replaceAll(" ", "_");
-
-      const urls = tts.getAllAudioUrls(description, {
-        lang: "hi",
-        slow: false,
-        host: "https://translate.google.com",
-      });
-
-      const buffers = await Promise.all(
-        urls.map(async (url) => {
-          const response = await fetch(url.url);
-          const arrayBuffer = await response.arrayBuffer();
-          return Buffer.from(arrayBuffer);
-        })
-      );
-
-      const concatenatedBuffer = Buffer.concat(buffers);
-
-      // Upload the buffer directly to Cloudinary
-      const folderPath = `podcastr/${clerkId.trim()}/${podcastTitle.trim().replaceAll(" ", "_")}/episodes`.trim();
-      const publicId = `Episode_${index}`;
-
-      const result = await streamUpload(concatenatedBuffer, folderPath, publicId);
-
-      episodes.push({
-        url: result.secure_url,
-        description,
-        title,
-        episodeNo: index,
-      });
-      index++;
-    }
-
-    return NextResponse.json({
-      message: "Audio file generated successfully",
-      transcription: text,
-      episodes: episodes,
-    });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({
-      message: "Failed to generate audio file",
-      error: "Error uploading file: " + error,
-    });
+  if (typeof text !== "string") {
+    return NextResponse.json({ message: "Text parameter is required" });
   }
+
+  console.log("Received text:", text);
+  const audioStream = await synthesizeSpeech(text);
+
+  console.log("Generated Audio stream !");
+  if (!audioStream) {
+    return NextResponse.json({ message: "Error synthesizing speech" });
+  }
+
+  const cloudinaryUrl = await uploadToCloudinary(
+    audioStream,
+    podcastTitle,
+    index,
+    clerkId
+  );
+  console.log("Uploaded to cloudinary", cloudinaryUrl);
+  if (!cloudinaryUrl) {
+    return NextResponse.json({ message: "Error uploading to Cloudinary" });
+  }
+
+  return NextResponse.json({ url: cloudinaryUrl });
 }

@@ -7,12 +7,14 @@ export const generateAudio = async ({
   clerkId,
   podcastTitle,
   setTranscription,
+  setIsGenerating,
 }: {
   voicePrompt: string;
   setEpisodes: Dispatch<SetStateAction<any>>;
   clerkId: string;
   podcastTitle: string;
   setTranscription: Dispatch<SetStateAction<string>>;
+  setIsGenerating: Dispatch<SetStateAction<boolean>>;
 }) => {
   const response = await fetch("/api/generate-podcast", {
     method: "POST",
@@ -30,28 +32,48 @@ export const generateAudio = async ({
     return;
   }
 
-  const result = await response.json();
-  console.log("transcription", result.data);
-  setTranscription(result.data);
-  if (typeof responsiveVoice !== "undefined") {
-    const res = await fetch("api/cloudinary/store/podcast", {
-      method: "POST",
-      body: JSON.stringify({
-        text: JSON.stringify(result.data),
-        clerkId: clerkId,
-        podcastTitle: podcastTitle,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+  let episodes: {
+    description: String;
+    title: String;
+    url: String;
+    episodeNo: Number;
+  }[] = [];
+
+  const result = response
+    .json()
+    .then((res) => {
+      console.log("transcription", res.data);
+
+      res.data.map(async (episode: any, index: number) => {
+        let text = episode.description;
+        const response = await fetch("/api/cloudinary/store/podcast", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ podcastTitle, text, index, clerkId }),
+        });
+
+        const data = await response.json();
+
+        episodes.push({
+          description: episode.description,
+          title: episode.title,
+          url: data.url,
+          episodeNo: index,
+        });
+      });
+    })
+    .catch((e) => {
+      console.log("error in transcription", e);
+      toast({
+        title: "retry with some other prompt",
+        variant: "warning",
+      });
+      setIsGenerating(false);
+      return;
     });
 
-    const resData = await res.json();
-
-    console.log("resData", resData.episodes);
-    setEpisodes(resData.episodes);
-    // responsiveVoice.speak(result.data, voiceType); //* it's speaking data that i want to hear from the api
-  } else {
-    console.error("responsiveVoice is not defined");
-  }
+  setEpisodes(episodes);
+  setIsGenerating(false);
 };

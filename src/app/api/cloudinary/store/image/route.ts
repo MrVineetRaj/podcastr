@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       (resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder: `podcastr/${user}/${title}/img`,
+            folder: `podcastr/${user}/${title}/thumbnail`,
             public_id: "thumbnail.png",
             // format: "png", // Ensure the format is png
             overwrite: true,

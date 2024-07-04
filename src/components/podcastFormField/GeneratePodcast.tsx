@@ -51,8 +51,8 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
         setEpisodes,
         clerkId,
         setTranscription,
+        setIsGenerating,
       });
-      setIsGenerating(false);
       toast({
         title: "Podcast generated successfully",
         variant: "success",
