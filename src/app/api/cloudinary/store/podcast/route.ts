@@ -5,9 +5,9 @@ import streamifier from "streamifier";
 
 // Configure AWS SDK and Cloudinary
 const polly = new AWS.Polly({
-  region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.MY_AWS_REGION,
+  accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
 });
 
 cloudinary.config({
