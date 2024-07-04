@@ -1,12 +1,11 @@
+import { User } from "@/config/mongoose/schemas";
 import { clerkClient } from "@clerk/nextjs/server";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 
-
 export async function POST(req: Request) {
-  
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
@@ -46,7 +45,7 @@ export async function POST(req: Request) {
     }) as WebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
-    return new Response("Error occured", {
+    return new Response("Error ocurred", {
       status: 400,
     });
   }
@@ -56,36 +55,47 @@ export async function POST(req: Request) {
   const { id } = evt.data;
   const eventType = evt.type;
 
-  //* Create a user in mongodb 
+  //* Create a user in mongodb
   if (eventType === "user.created") {
     const userData = evt.data;
-    const newUser ={
+    const newUser = {
       email: userData.email_addresses[0].email_address,
       imageUrl: userData.image_url,
       clerkId: userData.id,
       name: userData?.first_name + " " + userData?.last_name,
+    };
+
+    let responseId;
+    
+    try {
+      const user = new User(newUser);
+      await user.save();
+
+      responseId = user._id;
+      
+    } catch (error) {
+      console.error("Error creating user:", error);
+      return NextResponse.json({
+        success: false,
+        message: "Error creating user from server",
+        data: error,
+      });
     }
 
-    console.log("User data:", newUser)
-    const response = await createUser(newUser);
-    
-    if(newUser){
-        await clerkClient.users.updateUserMetadata(userData.id, {
-          publicMetadata:{
-            user_id: response.data._id,
-          }
-        });
+    if (newUser) {
+      await clerkClient.users.updateUserMetadata(userData.id, {
+        publicMetadata: {
+          user_id: responseId,
+        },
+      });
     }
 
     return NextResponse.json({
       success: true,
       message: "User created",
-      data: newUser
+      data: newUser,
     });
-
   }
-  console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-  console.log("Webhook body:", body);
-
+  
   return new Response("", { status: 200 });
 }
