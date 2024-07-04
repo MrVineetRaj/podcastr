@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 
-import { createUser } from "@/config/actions/user_action";
 
 export async function POST(req: Request) {
   
