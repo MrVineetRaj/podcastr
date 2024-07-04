@@ -65,8 +65,8 @@ export const generateAudio = async ({
         );
 
         const data = await response.json();
-
-        console.log(data);
+        
+        console.log(`episode ${index}`);
         episodes.push({
           description: episode.description,
           title: episode.title,
@@ -74,6 +74,13 @@ export const generateAudio = async ({
           episodeNo: index,
         });
       });
+
+      if(episodes.length < 0){
+        toast({
+        title: "Not able to store the data into episodes ",
+        variant: "warning",
+      });
+      }
     })
     .catch((e) => {
       console.log("error in generating podcast", e);
