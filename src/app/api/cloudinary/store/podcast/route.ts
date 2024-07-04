@@ -1,18 +1,41 @@
-// pages/api/speak.ts
-
 import { NextApiRequest, NextApiResponse } from "next";
-import fs from "fs";
-import path from "path";
 import fetch from "node-fetch";
 import * as tts from "google-tts-api";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import stream from "stream";
+import { promisify } from "util";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+const streamUpload = (buffer: Buffer, folderPath: string, publicId: string): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: "video", // For audio files, use 'video'
+        folder: folderPath,
+        public_id: publicId,
+        overwrite: true,
+        type: "authenticated", // Set to authenticated for private access
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    const readable = new stream.PassThrough();
+    readable.end(buffer);
+    readable.pipe(uploadStream);
+  });
+};
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -25,6 +48,7 @@ export async function POST(req: Request) {
       description: string;
       title: string;
       url: string;
+      episodeNo: number;
     }[] = [];
 
     let index = 0;
@@ -32,12 +56,6 @@ export async function POST(req: Request) {
       const { item: episode, description, title } = item;
 
       let episodeTitle = title.replaceAll(" ", "_");
-      const filePath = path.join(
-        process.cwd(),
-        "public",
-        "audio",
-        episodeTitle + ".mp3"
-      );
 
       const urls = tts.getAllAudioUrls(description, {
         lang: "hi",
@@ -55,27 +73,19 @@ export async function POST(req: Request) {
 
       const concatenatedBuffer = Buffer.concat(buffers);
 
-      fs.writeFileSync(filePath, concatenatedBuffer);
+      // Upload the buffer directly to Cloudinary
+      const folderPath = `podcastr/${clerkId.trim()}/${podcastTitle.trim().replaceAll(" ", "_")}/episodes`.trim();
+      const publicId = `Episode_${index}`;
 
-      const result = await cloudinary.uploader.upload(filePath, {
-        resource_type: "video", // For audio files, use 'video'
-        folder:
-          `podcastr/${clerkId.trim()}/${episodeTitle.trim()}/episodes`.trim(),
-        public_id: `Episode_${index}`,
-        overwrite: true,
-        type: "authenticated", // Set to authenticated for private access
-      });
-
-      fs.unlinkSync(filePath);
-
-      index++;
-      console.log("result", result.secure_url);
+      const result = await streamUpload(concatenatedBuffer, folderPath, publicId);
 
       episodes.push({
         url: result.secure_url,
         description,
         title,
+        episodeNo: index,
       });
+      index++;
     }
 
     return NextResponse.json({

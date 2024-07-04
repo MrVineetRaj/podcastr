@@ -21,6 +21,7 @@ const PodcastSchema = new mongoose.Schema({
       description: String,
       title: String,
       url: String,
+      episodeNo: Number,
     },
   ],
   imageUrl: {
