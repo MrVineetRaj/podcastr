@@ -21,7 +21,7 @@ const Carousel = () => {
     fetchPodcast();
   }, [activePodcastId]);
   return (
-    <div
+    <span
       className=" h-full overflow-y-scroll mt-8"
       style={{ scrollbarWidth: "thin" }}
     >
@@ -35,22 +35,22 @@ const Carousel = () => {
           },
           index
         ) => (
-          <div
+          <span
             key={index}
             className="flex justify-between mt-2 items-center py-2 px-2 border border-black-5 cursor-pointer"
             onClick={() => setActiveEpisode(episode)}
           >
-            <h1 className=" line-clamp-2">{episode?.title}</h1>
+            <span className=" line-clamp-2">{episode?.title}</span>
             <Image
               src="/icons/Play.svg"
               alt={episode?.title}
               width={30}
               height={30}
             />
-          </div>
+          </span>
         )
       )}
-    </div>
+    </span>
   );
 };
 

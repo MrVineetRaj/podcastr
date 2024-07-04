@@ -41,7 +41,7 @@ const PodcastDetails = () => {
 
   return (
     <section className="flex w-full flex-col">
-      <header className="mt-9 flex items-center justify-between">
+      <header className="mt-9 flex flex-col sm:flex-row gap-5 sm:items-center justify-center sm:justify-between">
         <h1 className="text-20 font-bold text-white-1">
           {podcast?.data?.title}
         </h1>
@@ -55,7 +55,7 @@ const PodcastDetails = () => {
           <h2 className="text-16 font-bold text-white-1">153 views</h2>
         </figure>
       </header>
-      <div className="flex gap-10 items-start justify-start my-5">
+      <div className="flex flex-col 553:flex-start gap-10 items-start justify-start my-5">
         {podcast?.data?.imageUrl && (
           <Image
             src={podcast?.data?.imageUrl}
@@ -65,11 +65,10 @@ const PodcastDetails = () => {
             className="rounded-lg"
           />
         )}
-        <div className="">
+        <div className=" ">
           <p className="text-white-2 text-16 pb-8 font-medium max-md:text-center ">
             {podcast?.data?.episodes[0]?.title}
           </p>
-
           <Button
             className="bg-orange-1 font-bold text-white-1"
             onClick={() => {
@@ -88,7 +87,8 @@ const PodcastDetails = () => {
           <h1 className="text-18 font-bold text-white-1">Transcription</h1>
           <p className="text-16 font-medium text-white-2">
             {/* {podcast?.data?.transcription} */}
-            {activeEpisode?.description || podcast?.data?.episodes[0]?.description}
+            {activeEpisode?.description ||
+              podcast?.data?.episodes[0]?.description}
           </p>
         </div>
       </div>
