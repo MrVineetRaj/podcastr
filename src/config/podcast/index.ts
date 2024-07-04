@@ -66,6 +66,7 @@ export const generateAudio = async ({
 
         const data = await response.json();
 
+        console.log(data);
         episodes.push({
           description: episode.description,
           title: episode.title,
