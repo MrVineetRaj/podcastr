@@ -6,14 +6,14 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const data = await req.json();
-  let { author, title, description, audioUrl, imageUrl, transcription } = data;
+  let { author, title, description, episodes, imageUrl, transcription } = data;
   try {
     await connectDB();
     const newPodcast = new Podcast({
       author,
       title,
       description,
-      audioUrl,
+      episodes,
       imageUrl,
       transcription,
     });

@@ -1,13 +1,33 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { usePodcastStore } from "@/store/PodcasProvider";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const PodcastDetails = () => {
   const searchParams = useSearchParams();
-  const podcastId = searchParams.get("r");
+  const podcastId = searchParams.get("r") || "";
 
-  const [podcast, setPodcast] = useState(null);
+  const {
+    setActivePodcastId,
+    setActiveEpisode,
+    setPodcastImage,
+    activeEpisode,
+  } = usePodcastStore();
+
+  const [podcast, setPodcast] = useState({
+    data: {
+      title: "",
+      imageUrl: "",
+      episodes: [
+        {
+          title: "",
+          description: "",
+        },
+      ],
+    },
+  });
   useEffect(() => {
     if (!podcastId) return;
     fetch(`/api/podcast?r=${podcastId}`)
@@ -17,6 +37,9 @@ const PodcastDetails = () => {
         setPodcast(data);
       });
   }, [podcastId]);
+
+  if (!podcast) return <div>Loading...</div>;
+
   return (
     <section className="flex w-full flex-col">
       <header className="mt-9 flex items-center justify-between">
@@ -30,22 +53,34 @@ const PodcastDetails = () => {
             height={24}
             alt="headphone"
           />
+          <h2 className="text-16 font-bold text-white-1">153 views</h2>
         </figure>
       </header>
       <div className="flex gap-10 items-start justify-start my-5">
-        <Image
-          src={podcast?.data?.imageUrl}
-          width={200}
-          height={200}
-          alt="podcast"
-          className="rounded-lg"
-        />
+        {podcast?.data?.imageUrl && (
+          <Image
+            src={podcast?.data?.imageUrl}
+            width={200}
+            height={200}
+            alt="podcast"
+            className="rounded-lg"
+          />
+        )}
         <div className="">
           <p className="text-white-2 text-16 pb-8 font-medium max-md:text-center ">
-            {podcast?.data?.description}
+            {podcast?.data?.episodes[0]?.title}
           </p>
 
-          <h2 className="text-16 font-bold text-white-1">153 views</h2>
+          <Button
+            className="bg-orange-1 font-bold text-white-1"
+            onClick={() => {
+              setActivePodcastId(podcastId);
+              setActiveEpisode(podcast?.data?.episodes[0]);
+              setPodcastImage(podcast?.data?.imageUrl);
+            }}
+          >
+            Play
+          </Button>
         </div>
       </div>
 
@@ -53,7 +88,8 @@ const PodcastDetails = () => {
         <div className="flex flex-col gap-4">
           <h1 className="text-18 font-bold text-white-1">Transcription</h1>
           <p className="text-16 font-medium text-white-2">
-            {podcast?.data?.transcription}
+            {/* {podcast?.data?.transcription} */}
+            {activeEpisode?.description || podcast?.data?.episodes[0]?.description}
           </p>
         </div>
       </div>

@@ -16,7 +16,7 @@ const PodcastCard = ({
   const router = useRouter();
 
   const handlePodCastRedirect = () => {
-    router.push(`/podcast?r=${_id}`, {
+    router.push(`/podcast?r=${_id}&e=0`, {
       scroll: true,
     });
   };

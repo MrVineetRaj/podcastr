@@ -30,15 +30,22 @@ export async function POST(req: Request) {
   const data = await req.json();
   const { prompt } = data;
 
+  const finalPrompt =
+    prompt +
+    "generate a podcast of it in possible no of episodes with and provide me a json data that contains array of objects with episode number, title , and description (detailed Description with minimum 500 words and maximum 1000 words) starting with into episode 0 . just json data nothing else and use Unicode code and don't include Control Characters please do this for me ";
   try {
-    const result = await chatSession.sendMessage(prompt);
+    const result = await chatSession.sendMessage(finalPrompt);
     let finalResult = result.response.text();
 
-    // finalResult = finalResult.replace(/<|>/g, "");
     finalResult = finalResult.replaceAll("*", "");
     finalResult = finalResult.replaceAll("#", "");
-    
+    finalResult = finalResult.replaceAll("```json", "");
+    finalResult = finalResult.replaceAll("```", "");
+    finalResult = finalResult.replaceAll("\n", "");
 
+    console.log("MY FINAL RESULT", finalResult);
+    
+    finalResult = JSON.parse(finalResult);
     return NextResponse.json({
       status: 200,
       data: finalResult,

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import PodcastProvider from "@/store/PodcasProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const manrope = Manrope({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Podcastr",
@@ -42,7 +43,9 @@ export default function RootLayout({
             strategy="beforeInteractive"
           />
         </head>
-        <body className={inter.className}>{children}</body>
+        <PodcastProvider>
+          <body className={manrope.className}>{children}</body>
+        </PodcastProvider>
       </html>
     </ClerkProvider>
   );

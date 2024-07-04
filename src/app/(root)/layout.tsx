@@ -1,3 +1,4 @@
+import PodcastPlayer from "@/components/PodcastPlaye";
 import LeftSideBar from "@/components/sidebar/LeftSideBar";
 import RightSideBar from "@/components/sidebar/RightSideBar";
 import { Toaster } from "@/components/ui/toaster";
@@ -19,13 +20,15 @@ export default function RootLayout({
               MobileNav
             </div>
             <div className="flex flex-col md:pb-14">
-              <Toaster/>
+              <Toaster />
               {children}
             </div>
           </div>
         </section>
-        <RightSideBar/>
+        <RightSideBar />
       </main>
+
+      <PodcastPlayer />
     </div>
   );
 }

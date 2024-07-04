@@ -36,7 +36,6 @@ import { useToast } from "@/components/ui/use-toast";
 // import { useMutation } from "convex/react";
 // import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
-import { voiceDetails } from "@/constants";
 import { useUser } from "@clerk/nextjs";
 
 const voiceCategories = ["alloy", "shimmer", "nova", "echo", "fable", "onyx"];
@@ -46,7 +45,7 @@ const CreatePodcast = () => {
   const router = useRouter();
 
   const [image, setImage] = useState("");
-  const [audioUrl, setAudioUrl] = useState("");
+  const [episodes, setEpisodes] = useState("");
   const [voicePrompt, setVoicePrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -67,7 +66,7 @@ const CreatePodcast = () => {
     }
 
     const clerkId = user.id;
-    if (!podcastTitle || !podcastDescription || !audioUrl || !image) {
+    if (!podcastTitle || !podcastDescription || !episodes || !image) {
       toast({
         title: "Please fill all the fields to proceed",
         variant: "warning",
@@ -85,9 +84,8 @@ const CreatePodcast = () => {
         author: clerkId,
         title: podcastTitle,
         description: podcastDescription,
-        audioUrl: audioUrl,
+        episodes: episodes,
         imageUrl: image,
-        transcription: transcription,
       }),
     });
 
@@ -107,7 +105,6 @@ const CreatePodcast = () => {
       title: "Podcast created successfully",
       variant: "success",
     });
-
   };
 
   return (
@@ -147,10 +144,9 @@ const CreatePodcast = () => {
       </div>
       <div className="flex flex-col pt-10">
         <GeneratePodcast
-          // setAudioStorageId={setAudioStorageId}
+        
           podcastTitle={podcastTitle}
-          setAudio={setAudioUrl}
-          audio={audioUrl}
+          setEpisodes={setEpisodes}
           voicePrompt={voicePrompt}
           setVoicePrompt={setVoicePrompt}
           setTranscription={setTranscription}

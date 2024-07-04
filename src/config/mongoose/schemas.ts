@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { PodcastProps } from "../ts_types";
+
 //h here we are creating a schema for the podcast
 
 const PodcastSchema = new mongoose.Schema({
@@ -16,15 +16,14 @@ const PodcastSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  audioUrl: {
-    type: String,
-    required: true,
-  },
+  episodes: [
+    {
+      description: String,
+      title: String,
+      url: String,
+    },
+  ],
   imageUrl: {
-    type: String,
-    required: true,
-  },
-  transcription: {
     type: String,
     required: true,
   },

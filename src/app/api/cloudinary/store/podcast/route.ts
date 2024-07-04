@@ -6,7 +6,6 @@ import path from "path";
 import fetch from "node-fetch";
 import * as tts from "google-tts-api";
 import { NextResponse } from "next/server";
-
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -19,53 +18,76 @@ export async function POST(req: Request) {
   const data = await req.json();
   const { text, clerkId, podcastTitle } = data;
 
-  const filePath = path.join(
-    process.cwd(),
-    "public",
-    "audio",
-    podcastTitle + ".mp3"
-  );
-
   try {
-    const urls = tts.getAllAudioUrls(text, {
-      lang: "hi",
-      slow: false,
-      host: "https://translate.google.com",
-    });
+    const textArray = JSON.parse(text);
 
-    const buffers = await Promise.all(
-      urls.map(async (url) => {
-        const response = await fetch(url.url);
-        const arrayBuffer = await response.arrayBuffer();
-        return Buffer.from(arrayBuffer);
-      })
-    );
+    let episodes: {
+      description: string;
+      title: string;
+      url: string;
+    }[] = [];
 
-    const concatenatedBuffer = Buffer.concat(buffers);
+    let index = 0;
+    for (const item of textArray) {
+      const { item: episode, description, title } = item;
 
-    fs.writeFileSync(filePath, concatenatedBuffer);
+      let episodeTitle = title.replaceAll(" ", "_");
+      const filePath = path.join(
+        process.cwd(),
+        "public",
+        "audio",
+        episodeTitle + ".mp3"
+      );
 
-    const result = await cloudinary.uploader.upload(filePath, {
-      resource_type: "video", // For audio files, use 'video'
-      folder: `podcastr/${clerkId}/${podcastTitle}/audio`,
-      public_id: "podcastAudio.mp3",
-      // format: "png", // Ensure the format is png
-      overwrite: true,
-      type: "authenticated", // Set to authenticated for private access
-    });
+      const urls = tts.getAllAudioUrls(description, {
+        lang: "hi",
+        slow: false,
+        host: "https://translate.google.com",
+      });
 
-    fs.unlinkSync(filePath);
+      const buffers = await Promise.all(
+        urls.map(async (url) => {
+          const response = await fetch(url.url);
+          const arrayBuffer = await response.arrayBuffer();
+          return Buffer.from(arrayBuffer);
+        })
+      );
+
+      const concatenatedBuffer = Buffer.concat(buffers);
+
+      fs.writeFileSync(filePath, concatenatedBuffer);
+
+      const result = await cloudinary.uploader.upload(filePath, {
+        resource_type: "video", // For audio files, use 'video'
+        folder:
+          `podcastr/${clerkId.trim()}/${episodeTitle.trim()}/episodes`.trim(),
+        public_id: `Episode_${index}`,
+        overwrite: true,
+        type: "authenticated", // Set to authenticated for private access
+      });
+
+      fs.unlinkSync(filePath);
+
+      index++;
+      console.log("result", result.secure_url);
+
+      episodes.push({
+        url: result.secure_url,
+        description,
+        title,
+      });
+    }
 
     return NextResponse.json({
       message: "Audio file generated successfully",
       transcription: text,
-      url: result.secure_url,
+      episodes: episodes,
     });
   } catch (error) {
     console.error(error);
     return NextResponse.json({
       message: "Failed to generate audio file",
-      error: "Error uploading file " + error,
+      error: "Error uploading file: " + error,
     });
   }
 }

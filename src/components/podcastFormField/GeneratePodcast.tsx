@@ -12,8 +12,7 @@ import { useUser } from "@clerk/nextjs";
 
 const useGeneratePodcast = (props: GeneratePodcastProps) => {
   const {
-    audio,
-    setAudio,
+    setEpisodes,
     voicePrompt,
     setVoicePrompt,
     podcastTitle,
@@ -25,7 +24,7 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
 
   const generatePodcast = async () => {
     setIsGenerating(true);
-    setAudio("");
+    setEpisodes([]);
     if (!isSignedIn || !user) {
       toast({
         title: "User is not signed in",
@@ -49,7 +48,7 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
       await generateAudio({
         podcastTitle,
         voicePrompt,
-        setAudio,
+        setEpisodes,
         clerkId,
         setTranscription,
       });
@@ -70,7 +69,7 @@ const useGeneratePodcast = (props: GeneratePodcastProps) => {
 };
 
 const GeneratePodcast = (props: GeneratePodcastProps) => {
-  const { audio, setAudio, voicePrompt, setVoicePrompt } = props;
+  const { setVoicePrompt } = props;
   const { isGenerating, generatePodcast } = useGeneratePodcast(props);
   return (
     <div>
@@ -101,12 +100,6 @@ const GeneratePodcast = (props: GeneratePodcastProps) => {
           )}
         </Button>
       </div>
-
-      {audio && (
-        <div className="mt-5">
-          <audio controls src={audio} autoPlay className="mt-5 w-full" />
-        </div>
-      )}
     </div>
   );
 };

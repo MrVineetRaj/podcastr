@@ -1,14 +1,15 @@
+import { toast } from "@/components/ui/use-toast";
 import { Dispatch, SetStateAction } from "react";
 
 export const generateAudio = async ({
   voicePrompt,
-  setAudio,
+  setEpisodes,
   clerkId,
   podcastTitle,
   setTranscription,
 }: {
   voicePrompt: string;
-  setAudio: Dispatch<SetStateAction<string>>;
+  setEpisodes: Dispatch<SetStateAction<any>>;
   clerkId: string;
   podcastTitle: string;
   setTranscription: Dispatch<SetStateAction<string>>;
@@ -21,6 +22,14 @@ export const generateAudio = async ({
     },
   });
 
+  if (!response.ok) {
+    toast({
+      title: "retry with some other prompt",
+      variant: "warning",
+    });
+    return;
+  }
+
   const result = await response.json();
   console.log("transcription", result.data);
   setTranscription(result.data);
@@ -28,7 +37,7 @@ export const generateAudio = async ({
     const res = await fetch("api/cloudinary/store/podcast", {
       method: "POST",
       body: JSON.stringify({
-        text: result.data,
+        text: JSON.stringify(result.data),
         clerkId: clerkId,
         podcastTitle: podcastTitle,
       }),
@@ -39,8 +48,8 @@ export const generateAudio = async ({
 
     const resData = await res.json();
 
-    console.log("resData", resData.message);
-    setAudio(resData.url);
+    console.log("resData", resData.episodes);
+    setEpisodes(resData.episodes);
     // responsiveVoice.speak(result.data, voiceType); //* it's speaking data that i want to hear from the api
   } else {
     console.error("responsiveVoice is not defined");
