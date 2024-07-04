@@ -23,8 +23,6 @@ const GenerateThumbnail = ({
     formData.append("file", file[0]);
     formData.append("title", podcastTitle);
     formData.append("clerkId", user.id);
-
-    console.log(formData.get("file"));
     const response = await fetch("/api/cloudinary/store/image", {
       method: "POST",
       body: formData,

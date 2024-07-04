@@ -12,12 +12,10 @@ const Carousel = () => {
   const [activePodcast, setActivePodcast] = useState([]);
 
   const fetchPodcast = async () => {
-    console.log("Active podcast id", activePodcastId);
     const response = await fetch("/api/podcast?r=" + activePodcastId);
     const data = await response.json();
     setActivePodcast(data?.data?.episodes);
 
-    console.log("My data", data?.data?.episodes);
   };
 
   React.useEffect(() => {

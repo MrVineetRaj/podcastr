@@ -33,7 +33,6 @@ const PodcastDetails = () => {
     fetch(`/api/podcast?r=${podcastId}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setPodcast(data);
       });
   }, [podcastId]);

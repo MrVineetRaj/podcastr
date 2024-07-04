@@ -45,7 +45,7 @@ const CreatePodcast = () => {
   const router = useRouter();
 
   const [image, setImage] = useState("");
-  const [episodes, setEpisodes] = useState("");
+  const [episodes, setEpisodes] = useState([]);
   const [voicePrompt, setVoicePrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -56,6 +56,11 @@ const CreatePodcast = () => {
 
   const handleCreateNewPodcast = async () => {
     setIsSubmitting(true);
+    const sortedEpisodes = episodes
+      .slice()
+      .sort((a: any, b: any) => a.episodeNo - b.episodeNo);
+
+    console.log(sortedEpisodes);
     if (!isSignedIn) {
       toast({
         title: "Please sign in to proceed",
@@ -84,7 +89,7 @@ const CreatePodcast = () => {
         author: clerkId,
         title: podcastTitle,
         description: podcastDescription,
-        episodes: episodes,
+        episodes: sortedEpisodes,
         imageUrl: image,
       }),
     });
@@ -99,7 +104,6 @@ const CreatePodcast = () => {
     }
 
     const data = await res.json();
-    console.log(data);
     setIsSubmitting(false);
     toast({
       title: "Podcast created successfully",
@@ -144,7 +148,6 @@ const CreatePodcast = () => {
       </div>
       <div className="flex flex-col pt-10">
         <GeneratePodcast
-        
           podcastTitle={podcastTitle}
           setEpisodes={setEpisodes}
           voicePrompt={voicePrompt}

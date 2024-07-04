@@ -41,17 +41,13 @@ export async function POST(req: Request) {
     finalResult = finalResult.replaceAll("#", "");
     finalResult = finalResult.replaceAll("```json", "");
     finalResult = finalResult.replaceAll("```", "");
-    finalResult = finalResult.replaceAll("\n", "");
-
-    console.log("MY FINAL RESULT", finalResult);
-    
+    finalResult = finalResult.replaceAll("\n", "");    
     finalResult = JSON.parse(finalResult);
     return NextResponse.json({
       status: 200,
       data: finalResult,
     });
   } catch (error) {
-    console.log("MY SERVER ERROR", error);
     return NextResponse.json({
       status: 500,
       data: error,

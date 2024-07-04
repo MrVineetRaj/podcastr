@@ -39,11 +39,9 @@ export const generateAudio = async ({
     episodeNo: Number;
   }[] = [];
 
-  const result = response
+  response
     .json()
     .then((res) => {
-      console.log("transcription", res.data);
-
       res.data.map(async (episode: any, index: number) => {
         let text = episode.description;
         const response = await fetch("/api/cloudinary/store/podcast", {
@@ -63,9 +61,9 @@ export const generateAudio = async ({
           episodeNo: index,
         });
       });
+      
     })
     .catch((e) => {
-      console.log("error in transcription", e);
       toast({
         title: "retry with some other prompt",
         variant: "warning",
@@ -74,6 +72,6 @@ export const generateAudio = async ({
       return;
     });
 
-  setEpisodes(episodes);
   setIsGenerating(false);
+  setEpisodes(episodes);
 };

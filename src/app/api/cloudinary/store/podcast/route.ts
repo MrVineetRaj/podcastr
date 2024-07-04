@@ -76,10 +76,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "Text parameter is required" });
   }
 
-  console.log("Received text:", text);
   const audioStream = await synthesizeSpeech(text);
-
-  console.log("Generated Audio stream !");
   if (!audioStream) {
     return NextResponse.json({ message: "Error synthesizing speech" });
   }
@@ -90,7 +87,6 @@ export async function POST(req: Request) {
     index,
     clerkId
   );
-  console.log("Uploaded to cloudinary", cloudinaryUrl);
   if (!cloudinaryUrl) {
     return NextResponse.json({ message: "Error uploading to Cloudinary" });
   }
