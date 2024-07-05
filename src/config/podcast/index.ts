@@ -16,6 +16,10 @@ export const generateAudio = async ({
   setTranscription: Dispatch<SetStateAction<string>>;
   setIsGenerating: Dispatch<SetStateAction<boolean>>;
 }) => {
+  if (process.env.NEXT_PUBLIC_PODCASTR_UTILS_SECRET_KEY === undefined)
+    throw new Error("Secret key is not defined");
+  const secretKey: string = process.env.NEXT_PUBLIC_PODCASTR_UTILS_SECRET_KEY;
+
   const response = await fetch(
     "https://podcastr-utility-backend.onrender.com/generate-podcast/ai",
     {
@@ -23,6 +27,7 @@ export const generateAudio = async ({
       body: JSON.stringify({ prompt: voicePrompt }),
       headers: {
         "Content-Type": "application/json",
+        "X-API-KEY": secretKey,
       },
     }
   );
@@ -43,15 +48,16 @@ export const generateAudio = async ({
   }[] = [];
 
   const tempRes = await response.json();
-  console.log(tempRes);
   tempRes.text.map(async (episode: any, index: number) => {
     let text = episode.description;
+
     const response = await fetch(
       "https://podcastr-utility-backend.onrender.com/cloudinary/store/podcast",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-API-KEY": secretKey,
         },
         body: JSON.stringify({
           text: text,
