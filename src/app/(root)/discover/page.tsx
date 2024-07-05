@@ -17,11 +17,10 @@ const Discover = () => {
   return (
     <div className="mt-9 flex flex-col gap-9 ">
       <section className="flex flex-col gap-5">
-        <h1 className="text-20 font-bold text-white-1">Trending Podcast</h1>
         <div className="podcast_grid">
           {podcasts?.length === 0 && (
             <span className="text-white-1 font-bold text-16 text-center">
-              No podcasts
+              No podcasts to discover
             </span>
           )}
           {podcasts?.map((podcast, index) => (

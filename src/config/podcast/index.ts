@@ -44,55 +44,42 @@ export const generateAudio = async ({
 
   const tempRes = await response.json();
   console.log(tempRes);
-  response
-    .json()
-    .then((res) => {
-      res?.text.map(async (episode: any, index: number) => {
-        let text = episode.description;
-        const response = await fetch(
-          "https://podcastr-utility-backend.onrender.com/cloudinary/store/podcast",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              text: text,
-              fileName: `episode-${index}`,
-              voiceId: "Aditi",
-              outputFormat: "mp3",
-              folder: `podcastr/${clerkId}/${podcastTitle}/episodes`,
-            }),
-          }
-        );
-
-        const data = await response.json();
-
-        console.log(`episode ${index}`);
-        episodes.push({
-          description: episode.description,
-          title: episode.title,
-          url: data.secure_url,
-          episodeNo: index,
-        });
-      });
-
-      if (episodes.length < 0) {
-        toast({
-          title: "Not able to store the data into episodes ",
-          variant: "warning",
-        });
+  tempRes.text.map(async (episode: any, index: number) => {
+    let text = episode.description;
+    const response = await fetch(
+      "https://podcastr-utility-backend.onrender.com/cloudinary/store/podcast",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: text,
+          fileName: `episode-${index}`,
+          voiceId: "Aditi",
+          outputFormat: "mp3",
+          folder: `podcastr/${clerkId}/${podcastTitle}/episodes`,
+        }),
       }
-    })
-    .catch((e) => {
-      console.log("error in generating podcast", e);
-      toast({
-        title: "retry with some other prompt",
-        variant: "warning",
-      });
-      setIsGenerating(false);
-      return;
+    );
+
+    const data = await response.json();
+
+    console.log(`episode ${index}`);
+    episodes.push({
+      description: episode.description,
+      title: episode.title,
+      url: data.secure_url,
+      episodeNo: index,
     });
+  });
+
+  if (episodes.length < 0) {
+    toast({
+      title: "Not able to store the data into episodes ",
+      variant: "warning",
+    });
+  }
 
   setIsGenerating(false);
   setEpisodes(episodes);
