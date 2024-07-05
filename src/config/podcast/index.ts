@@ -48,8 +48,13 @@ export const generateAudio = async ({
   }[] = [];
 
   const tempRes = await response.json();
+
+  console.log(tempRes.text);
+
   tempRes.text.map(async (episode: any, index: number) => {
     let text = episode.description;
+
+    console.log(`working on episode ${index}`);
 
     const response = await fetch(
       "https://podcastr-utility-backend.onrender.com/cloudinary/store/podcast",
@@ -69,9 +74,17 @@ export const generateAudio = async ({
       }
     );
 
+    if (!response.ok) {
+      toast({
+        title: "Not able to store the data into episodes ",
+        variant: "warning",
+      });
+      return;
+    }
+
     const data = await response.json();
 
-    console.log(`episode ${index}`);
+    console.log(`done episode ${index}`);
     episodes.push({
       description: episode.description,
       title: episode.title,

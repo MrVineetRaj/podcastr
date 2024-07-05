@@ -21,7 +21,8 @@ import { AlignLeft, AlignRight } from "lucide-react";
 const MobileNav = () => {
   const { user, isSignedIn } = useUser();
 
-  const { activePodcastId, setActiveEpisode } = usePodcastStore();
+  const { activePodcastId, setActiveEpisode, activeEpisode } =
+    usePodcastStore();
 
   const [activePodcast, setActivePodcast] = useState([]);
 
@@ -79,6 +80,12 @@ const MobileNav = () => {
                       key={index}
                       className="flex justify-between mt-2 items-center py-2 px-2 border border-black-5 cursor-pointer text-white-1"
                       onClick={() => setActiveEpisode(episode)}
+                      style={{
+                        borderColor:
+                          activeEpisode?.title === episode?.title
+                            ? "orange"
+                            : "",
+                      }}
                     >
                       <span className=" line-clamp-2">{episode?.title}</span>
                       <Image
