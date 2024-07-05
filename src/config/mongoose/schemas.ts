@@ -16,6 +16,10 @@ const PodcastSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
   episodes: [
     {
       description: String,
@@ -24,6 +28,10 @@ const PodcastSchema = new mongoose.Schema({
       episodeNo: Number,
     },
   ],
+  views: {
+    type: Number,
+    default: 0,
+  },
   imageUrl: {
     type: String,
     required: true,

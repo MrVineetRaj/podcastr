@@ -8,7 +8,7 @@ const Home = () => {
   const [podcasts, setPodcasts] = useState([]);
   useEffect(() => {
     if (podcasts?.length > 0) return;
-    getAllPodcasts().then((data) => {
+    getAllPodcasts({ page: "trending", podcastId: "" }).then((data) => {
       setPodcasts(data);
     });
   }, [podcasts]);

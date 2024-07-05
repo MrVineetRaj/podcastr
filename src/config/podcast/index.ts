@@ -42,6 +42,8 @@ export const generateAudio = async ({
     episodeNo: Number;
   }[] = [];
 
+  const tempRes = await response.json();
+  console.log(tempRes);
   response
     .json()
     .then((res) => {
@@ -65,7 +67,7 @@ export const generateAudio = async ({
         );
 
         const data = await response.json();
-        
+
         console.log(`episode ${index}`);
         episodes.push({
           description: episode.description,
@@ -75,11 +77,11 @@ export const generateAudio = async ({
         });
       });
 
-      if(episodes.length < 0){
+      if (episodes.length < 0) {
         toast({
-        title: "Not able to store the data into episodes ",
-        variant: "warning",
-      });
+          title: "Not able to store the data into episodes ",
+          variant: "warning",
+        });
       }
     })
     .catch((e) => {
